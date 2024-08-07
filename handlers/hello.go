@@ -20,7 +20,9 @@ func (h *Hello) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	d, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, "Bad Request", http.StatusBadRequest)
+		h.l.Println("Error reading body", err)
+
+		http.Error(w, "Unable to read request body", http.StatusBadRequest)
 		return
 	}
 
