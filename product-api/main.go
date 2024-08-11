@@ -11,6 +11,7 @@ import (
 	"github.com/McFlanky/microservices-fullstack-example/data"
 	"github.com/McFlanky/microservices-fullstack-example/handlers"
 	"github.com/go-openapi/runtime/middleware"
+	gohandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -47,10 +48,13 @@ func main() {
 	getRtr.Handle("/docs", sh)
 	getRtr.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
 
+	// CORS
+	ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"http://localhost:3000"}))
+
 	// create a new server
 	s := &http.Server{
 		Addr:         ":8080",           // bind address
-		Handler:      sm,                // default handler
+		Handler:      ch(sm),            // default handler
 		ErrorLog:     l,                 // logger for server
 		ReadTimeout:  1 * time.Second,   // max time to read request from client
 		WriteTimeout: 1 * time.Second,   // max time to write response to client
