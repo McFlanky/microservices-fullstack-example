@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/McFlanky/microservices-fullstack-example/data"
+	"github.com/McFlanky/microservices-fullstack-example/api/data"
 )
 
 // swagger:route PUT /products products updateProduct

@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"context"
 	"net/http"
 
-	"github.com/McFlanky/microservices-fullstack-example/data"
+	"github.com/McFlanky/microservices-fullstack-example/api/data"
+	protos "github.com/McFlanky/microservices-fullstack-example/currency/protos/currency"
 )
 
 // swagger:route GET /products products listProducts
@@ -57,6 +59,23 @@ func (p *Products) ListSingle(w http.ResponseWriter, r *http.Request) {
 		data.ToJSON(&GenericError{Message: err.Error()}, w)
 		return
 	}
+
+	// get exchange rate
+	rr := &protos.RateRequest{
+		Base:        protos.Currencies(protos.Currencies_value["EUR"]),
+		Destination: protos.Currencies(protos.Currencies_value["GBP"]),
+	}
+
+	resp, err := p.cc.GetRate(context.Background(), rr)
+	if err != nil {
+		p.l.Println("[ERROR] error getting new rate", err)
+		data.ToJSON(&GenericError{Message: err.Error()}, w)
+		return
+	}
+
+	p.l.Printf("Resp %#v", resp)
+
+	prod.Price = prod.Price * resp.Rate
 
 	err = data.ToJSON(prod, w)
 	if err != nil {

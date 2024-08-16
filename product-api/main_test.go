@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/McFlanky/microservices-fullstack-example/sdk/client"
-	"github.com/McFlanky/microservices-fullstack-example/sdk/client/products"
+	"github.com/McFlanky/microservices-fullstack-example/api/sdk/client"
+	"github.com/McFlanky/microservices-fullstack-example/api/sdk/client/products"
 )
 
 func TestOurClient(t *testing.T) {

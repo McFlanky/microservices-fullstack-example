@@ -10,7 +10,7 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/McFlanky/microservices-fullstack-example/sdk/client/products"
+	"github.com/McFlanky/microservices-fullstack-example/api/sdk/client/products"
 )
 
 // Default product API HTTP client.

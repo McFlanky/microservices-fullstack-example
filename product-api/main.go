@@ -8,19 +8,31 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/McFlanky/microservices-fullstack-example/data"
-	"github.com/McFlanky/microservices-fullstack-example/handlers"
+	"github.com/McFlanky/microservices-fullstack-example/api/data"
+	"github.com/McFlanky/microservices-fullstack-example/api/handlers"
+	protos "github.com/McFlanky/microservices-fullstack-example/currency/protos/currency"
 	"github.com/go-openapi/runtime/middleware"
 	gohandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func main() {
 	l := log.New(os.Stdout, "product-api", log.LstdFlags)
 	v := data.NewValidation()
 
+	conn, err := grpc.NewClient("localhost:8082", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	// create client
+	cc := protos.NewCurrencyClient(conn)
+
 	// create the handlers
-	ph := handlers.NewProducts(l, v)
+	ph := handlers.NewProducts(l, v, cc)
 
 	// create a new serve mux and register the handlers
 	sm := mux.NewRouter()
@@ -48,7 +60,7 @@ func main() {
 	getRtr.Handle("/docs", sh)
 	getRtr.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
 
-	// CORS
+	// CORS handler
 	ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"http://localhost:3000"}))
 
 	// create a new server

@@ -15,7 +15,7 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/McFlanky/microservices-fullstack-example/sdk/models"
+	"github.com/McFlanky/microservices-fullstack-example/api/sdk/models"
 )
 
 // NewCreateProductParams creates a new CreateProductParams object,

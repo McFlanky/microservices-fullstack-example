@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/McFlanky/microservices-fullstack-example/data"
+	"github.com/McFlanky/microservices-fullstack-example/api/data"
 )
 
 // MiddlewareValidateProduct validates the product in the request and calls next if ok
