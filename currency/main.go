@@ -1,11 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"net"
 	"os"
 
 	protos "github.com/McFlanky/microservices-fullstack-example/currency/protos/currency"
-	"github.com/McFlanky/microservices-fullstack-example/currency/protos/server"
+	"github.com/McFlanky/microservices-fullstack-example/currency/server"
 	"github.com/hashicorp/go-hclog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -18,19 +19,22 @@ func main() {
 	gs := grpc.NewServer()
 
 	// create an instance of the Currency server
-	cs := server.NewCurrency(log)
+	c := server.NewCurrency(log)
 
 	// register the currency server
-	protos.RegisterCurrencyServer(gs, cs)
+	protos.RegisterCurrencyServer(gs, c)
 
-	// register the reflection service which allows clients to determine the methods for this gRPC service
+	// register the reflection service which allows clients to determine the methods
+	// for this gRPC service
 	reflection.Register(gs)
 
-	l, err := net.Listen("tcp", ":8082")
+	// create a TCP socket for inbound server connections
+	l, err := net.Listen("tcp", fmt.Sprintf(":%d", 8082))
 	if err != nil {
-		log.Error("Unable to listen", "error", err)
+		log.Error("Unable to create listener", "error", err)
 		os.Exit(1)
 	}
 
+	// listen for requests
 	gs.Serve(l)
 }
