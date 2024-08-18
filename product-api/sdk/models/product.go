@@ -35,7 +35,7 @@ type Product struct {
 	// the price for the product
 	// Required: true
 	// Minimum: 0.01
-	Price *float32 `json:"price"`
+	Price *float64 `json:"price"`
 
 	// the SKU for the product
 	// Required: true

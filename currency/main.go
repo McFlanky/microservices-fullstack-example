@@ -5,6 +5,7 @@ import (
 	"net"
 	"os"
 
+	"github.com/McFlanky/microservices-fullstack-example/currency/data"
 	protos "github.com/McFlanky/microservices-fullstack-example/currency/protos/currency"
 	"github.com/McFlanky/microservices-fullstack-example/currency/server"
 	"github.com/hashicorp/go-hclog"
@@ -15,11 +16,17 @@ import (
 func main() {
 	log := hclog.Default()
 
+	rates, err := data.NewRates(log)
+	if err != nil {
+		log.Error("Unable to get rates", "error", err)
+		os.Exit(1)
+	}
+
 	// create a new gRPC server, use WithInsecure to allow http connections
 	gs := grpc.NewServer()
 
 	// create an instance of the Currency server
-	c := server.NewCurrency(log)
+	c := server.NewCurrency(rates, log)
 
 	// register the currency server
 	protos.RegisterCurrencyServer(gs, c)

@@ -3,16 +3,16 @@ consumes:
     - application/json
 definitions:
     GenericError:
-        description: GenericError GenericError is a generic error message returned by a server
+        description: GenericError GenericError GenericError is a generic error message returned by a server
         properties:
             message:
                 description: message
                 type: string
                 x-go-name: Message
         type: object
-        x-go-package: github.com/McFlanky/microservices-fullstack-example/sdk/models
+        x-go-package: github.com/McFlanky/microservices-fullstack-example/api/sdk/models
     Product:
-        description: Product Product defines the structure for an API product
+        description: Product Product Product defines the structure for an API product
         properties:
             description:
                 description: the description for this poduct
@@ -32,7 +32,7 @@ definitions:
                 x-go-name: Name
             price:
                 description: the price for the product
-                format: float
+                format: double
                 minimum: 0.01
                 type: number
                 x-go-name: Price
@@ -46,9 +46,9 @@ definitions:
             - price
             - sku
         type: object
-        x-go-package: github.com/McFlanky/microservices-fullstack-example/sdk/models
+        x-go-package: github.com/McFlanky/microservices-fullstack-example/api/sdk/models
     ValidationError:
-        description: ValidationError ValidationError is a collection of validation error messages
+        description: ValidationError ValidationError ValidationError is a collection of validation error messages
         properties:
             messages:
                 description: messages
@@ -57,7 +57,7 @@ definitions:
                 type: array
                 x-go-name: Messages
         type: object
-        x-go-package: github.com/McFlanky/microservices-fullstack-example/sdk/models
+        x-go-package: github.com/McFlanky/microservices-fullstack-example/api/sdk/models
 info:
     description: Documentation for Product API
     title: of Product API
@@ -67,6 +67,13 @@ paths:
         get:
             description: Return a list of products from the database
             operationId: listProducts
+            parameters:
+                - description: |-
+                    Currency used when returning the price of the product,
+                    when not specified currency is returned in GBP.
+                  in: query
+                  name: Currency
+                  type: string
             responses:
                 "200":
                     $ref: '#/responses/productsResponse'
@@ -139,6 +146,12 @@ paths:
             description: Return a list of products from the database
             operationId: listSingleProduct
             parameters:
+                - description: |-
+                    Currency used when returning the price of the product,
+                    when not specified currency is returned in GBP.
+                  in: query
+                  name: Currency
+                  type: string
                 - description: The id of the product for which the operation relates
                   format: int64
                   in: path
@@ -173,7 +186,9 @@ responses:
     productsResponse:
         description: A list of products
         schema:
-            $ref: '#/definitions/Product'
+            items:
+                $ref: '#/definitions/Product'
+            type: array
 schemes:
     - http
 swagger: "2.0"

@@ -57,6 +57,7 @@ func NewProductsDB(c protos.CurrencyClient, l hclog.Logger) *ProductsDB {
 	return &ProductsDB{c, l}
 }
 
+// GetProducts returns all products from the database
 func (p *ProductsDB) GetProducts(currency string) (Products, error) {
 	if currency == "" {
 		return productList, nil
@@ -64,7 +65,7 @@ func (p *ProductsDB) GetProducts(currency string) (Products, error) {
 
 	rate, err := p.getRate(currency)
 	if err != nil {
-		p.log.Error("unable to get rate", "currency", currency, "error", err)
+		p.log.Error("Unable to get rate", "currency", currency, "error", err)
 		return nil, err
 	}
 
@@ -93,7 +94,7 @@ func (p *ProductsDB) GetProductByID(id int, currency string) (*Product, error) {
 
 	rate, err := p.getRate(currency)
 	if err != nil {
-		p.log.Error("unable to get rate", "currency", currency, "error", err)
+		p.log.Error("Unable to get rate", "currency", currency, "error", err)
 		return nil, err
 	}
 
@@ -107,28 +108,28 @@ func (p *ProductsDB) GetProductByID(id int, currency string) (*Product, error) {
 // item.
 // If a product with the given id does not exist in the database
 // this function returns a ProductNotFound error
-func (p *ProductsDB) UpdateProduct(p Product) error {
-	i := findIndexByProductID(p.ID)
+func (p *ProductsDB) UpdateProduct(pr Product) error {
+	i := findIndexByProductID(pr.ID)
 	if i == -1 {
 		return ErrProductNotFound
 	}
 
 	// update the product in the DB
-	productList[i] = &p
+	productList[i] = &pr
 
 	return nil
 }
 
 // AddProduct adds a new product to the database
-func AddProduct(p Product) {
+func (p *ProductsDB) AddProduct(pr Product) {
 	// get the next id in sequence
 	maxID := productList[len(productList)-1].ID
-	p.ID = maxID + 1
-	productList = append(productList, &p)
+	pr.ID = maxID + 1
+	productList = append(productList, &pr)
 }
 
 // DeleteProduct deletes a product from the database
-func DeleteProduct(id int) error {
+func (p *ProductsDB) DeleteProduct(id int) error {
 	i := findIndexByProductID(id)
 	if i == -1 {
 		return ErrProductNotFound

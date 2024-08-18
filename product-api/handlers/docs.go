@@ -42,7 +42,7 @@ type errorValidationWrapper struct {
 type productsResponseWrapper struct {
 	// All current products
 	// in: body
-	Body data.Product
+	Body []data.Product
 }
 
 // Data structure representing a single product
@@ -65,6 +65,15 @@ type productParamsWrapper struct {
 	// in: body
 	// required: true
 	Body data.Product
+}
+
+// swagger:parameters listProducts listSingleProduct
+type productQueryParam struct {
+	// Currency used when returning the price of the product,
+	// when not specified currency is returned in GBP.
+	// in: query
+	// required: false
+	Currency string
 }
 
 // swagger:parameters listSingleProduct deleteProduct

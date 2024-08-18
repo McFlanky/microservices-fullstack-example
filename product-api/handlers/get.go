@@ -12,16 +12,23 @@ import (
 //	200: productsResponse
 
 // ListAll handles GET requests and returns all current products
-func (p *Products) ListAll(w http.ResponseWriter, r *http.Request) {
-	p.l.Println("[DEBUG] get all records")
-	w.Header().Add("Content-Type", "application/json")
+func (p *Products) ListAll(rw http.ResponseWriter, r *http.Request) {
+	p.l.Debug("Get all records")
+	rw.Header().Add("Content-Type", "application/json")
 
-	prods := data.GetProducts()
+	cur := r.URL.Query().Get("currency")
 
-	err := data.ToJSON(prods, w)
+	prods, err := p.productDB.GetProducts(cur)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		data.ToJSON(&GenericError{Message: err.Error()}, rw)
+		return
+	}
+
+	err = data.ToJSON(prods, rw)
 	if err != nil {
 		// we should never be here but log the error just incase
-		p.l.Println("[ERROR] serializing product", err)
+		p.l.Error("Unable to serializing product", "error", err)
 	}
 }
 
@@ -32,35 +39,37 @@ func (p *Products) ListAll(w http.ResponseWriter, r *http.Request) {
 //	404: errorResponse
 
 // ListSingle handles GET requests
-func (p *Products) ListSingle(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
+func (p *Products) ListSingle(rw http.ResponseWriter, r *http.Request) {
+	rw.Header().Add("Content-Type", "application/json")
 
 	id := getProductID(r)
 
-	p.l.Println("[DEBUG] get record id", id)
+	cur := r.URL.Query().Get("currency")
 
-	prod, err := data.GetProductByID(id)
+	p.l.Debug("Get record", "id", id)
+
+	prod, err := p.productDB.GetProductByID(id, cur)
 
 	switch err {
 	case nil:
 
 	case data.ErrProductNotFound:
-		p.l.Println("[ERROR] fetching product", err)
+		p.l.Error("Unable to fetch product", "error", err)
 
-		w.WriteHeader(http.StatusNotFound)
-		data.ToJSON(&GenericError{Message: err.Error()}, w)
+		rw.WriteHeader(http.StatusNotFound)
+		data.ToJSON(&GenericError{Message: err.Error()}, rw)
 		return
 	default:
-		p.l.Println("[ERROR] fetching product", err)
+		p.l.Error("Unable to fetching product", "error", err)
 
-		w.WriteHeader(http.StatusInternalServerError)
-		data.ToJSON(&GenericError{Message: err.Error()}, w)
+		rw.WriteHeader(http.StatusInternalServerError)
+		data.ToJSON(&GenericError{Message: err.Error()}, rw)
 		return
 	}
 
-	err = data.ToJSON(prod, w)
+	err = data.ToJSON(prod, rw)
 	if err != nil {
 		// we should never be here but log the error just incase
-		p.l.Println("[ERROR] serializing product", err)
+		p.l.Error("Unable to serializing product", err)
 	}
 }
