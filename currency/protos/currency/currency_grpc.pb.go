@@ -29,6 +29,8 @@ const (
 type CurrencyClient interface {
 	// GetRate returns the exchange rate for the two provided currency codes
 	GetRate(ctx context.Context, in *RateRequest, opts ...grpc.CallOption) (*RateResponse, error)
+	// SubscribeRates allows a client to subscribe for changes in an exchange rate
+	// when the rate changes a response will be sent
 	SubscribeRates(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[RateRequest, RateResponse], error)
 }
 
@@ -69,6 +71,8 @@ type Currency_SubscribeRatesClient = grpc.BidiStreamingClient[RateRequest, RateR
 type CurrencyServer interface {
 	// GetRate returns the exchange rate for the two provided currency codes
 	GetRate(context.Context, *RateRequest) (*RateResponse, error)
+	// SubscribeRates allows a client to subscribe for changes in an exchange rate
+	// when the rate changes a response will be sent
 	SubscribeRates(grpc.BidiStreamingServer[RateRequest, RateResponse]) error
 	mustEmbedUnimplementedCurrencyServer()
 }
