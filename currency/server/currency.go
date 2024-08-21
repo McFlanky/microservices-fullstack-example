@@ -8,6 +8,8 @@ import (
 	"github.com/McFlanky/microservices-fullstack-example/currency/data"
 	protos "github.com/McFlanky/microservices-fullstack-example/currency/protos/currency"
 	"github.com/hashicorp/go-hclog"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 // Currency is a gRPC server that implements the methods defined by the CurrencyServer interface
@@ -61,12 +63,28 @@ func (c *Currency) handleUpdates() {
 func (c *Currency) GetRate(ctx context.Context, rr *protos.RateRequest) (*protos.RateResponse, error) {
 	c.log.Info("Handle request for GetRate", "base", rr.GetBase(), "dest", rr.GetDestination())
 
+	if rr.Base == rr.Destination {
+		err := status.Newf(
+			codes.InvalidArgument,
+			"Base currency %s cannot be the same as the destination currency %s",
+			rr.GetBase().String(),
+			rr.GetDestination().String(),
+		)
+
+		err, wde := err.WithDetails(rr)
+		if wde != nil {
+			return nil, wde
+		}
+
+		return nil, err.Err()
+	}
+
 	rate, err := c.rates.GetRate(rr.GetBase().String(), rr.GetDestination().String())
 	if err != nil {
 		return nil, err
 	}
 
-	return &protos.RateResponse{Rate: rate}, nil
+	return &protos.RateResponse{Base: rr.Base, Destination: rr.Destination, Rate: rate}, nil
 }
 
 // SubscribeRates implements the gRPC Bi-Directional streaming method for the server
